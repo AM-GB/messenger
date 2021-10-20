@@ -1,34 +1,18 @@
 import subprocess
-import os
-import time
-
-
-d = os.getcwd()
 
 process = []
 
 while True:
-    action = input(
-        'Выберите действие: q - выход , s - запустить сервер и клиенты, x - закрыть все окна:')
-
+    action = input('Выберите действие: q - выход , s - запустить сервер и клиенты, x - закрыть все окна:')
     if action == 'q':
         break
     elif action == 's':
-        process.append(subprocess.Popen(
-            'gnome-terminal -- bash -c "python3 server.py"', shell=True))
-        time.sleep(1)
-        process.append(subprocess.Popen(
-            'gnome-terminal -- bash -c "python3 client.py -n test1"', shell=True))
-        time.sleep(1)
-        process.append(subprocess.Popen(
-            'gnome-terminal -- bash -c "python3 client.py -n test2"', shell=True))
-        time.sleep(1)
-        process.append(subprocess.Popen(
-            'gnome-terminal -- bash -c "python3 client.py -n test3"', shell=True))
-        # subprocess.call(['gnome-terminal', '--', 'bash',
-        #                 '-c' 'python3 server.py'])
-        print(process)
+        clients_count = int(input('Введите количество тестовых клиентов для запуска: '))
+        # Запускаем сервер!
+        process.append(subprocess.Popen('python server.py', creationflags=subprocess.CREATE_NEW_CONSOLE))
+        # Запускаем клиентов:
+        for i in range(clients_count):
+            process.append(subprocess.Popen(f'python client.py -n test{i + 1}', creationflags=subprocess.CREATE_NEW_CONSOLE))
     elif action == 'x':
         while process:
-            victim = process.pop()
-            victim.kill()
+            process.pop().kill()
