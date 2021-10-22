@@ -40,7 +40,8 @@ class ServerStorage:
         # echo=False - отключаем ведение лога (вывод sql-запросов)
         # pool_recycle - По умолчанию соединение с БД через 8 часов простоя обрывается.
         # Чтобы это не случилось нужно добавить опцию pool_recycle = 7200 (переуст-ка соед-я через 2 часа)
-        self.database_engine = create_engine(SERVER_DATABASE, echo=False, pool_recycle=7200)
+        self.database_engine = create_engine(
+            SERVER_DATABASE, echo=False, pool_recycle=7200)
 
         # Создаём объект MetaData
         self.metadata = MetaData()
@@ -55,7 +56,8 @@ class ServerStorage:
         # Создаём таблицу активных пользователей
         active_users_table = Table('Active_users', self.metadata,
                                    Column('id', Integer, primary_key=True),
-                                   Column('user', ForeignKey('Users.id'), unique=True),
+                                   Column('user', ForeignKey(
+                                       'Users.id'), unique=True),
                                    Column('ip_address', String),
                                    Column('port', Integer),
                                    Column('login_time', DateTime)
@@ -93,7 +95,7 @@ class ServerStorage:
         print(username, ip_address, port)
         # Запрос в таблицу пользователей на наличие там пользователя с таким именем
         rez = self.session.query(self.AllUsers).filter_by(name=username)
-        #print(type(rez))
+        # print(type(rez))
         # Если имя пользователя уже присутствует в таблице, обновляем время последнего входа
         if rez.count():
             user = rez.first()
@@ -108,12 +110,14 @@ class ServerStorage:
 
         # Теперь можно создать запись в таблицу активных пользователей о факте входа.
         # Создаем экземпляр класса self.ActiveUsers, через который передаем данные в таблицу
-        new_active_user = self.ActiveUsers(user.id, ip_address, port, datetime.datetime.now())
+        new_active_user = self.ActiveUsers(
+            user.id, ip_address, port, datetime.datetime.now())
         self.session.add(new_active_user)
 
         # и сохранить в историю входов
         # Создаем экземпляр класса self.LoginHistory, через который передаем данные в таблицу
-        history = self.LoginHistory(user.id, datetime.datetime.now(), ip_address, port)
+        history = self.LoginHistory(
+            user.id, datetime.datetime.now(), ip_address, port)
         self.session.add(history)
 
         # Сохраняем изменения
@@ -123,7 +127,8 @@ class ServerStorage:
     def user_logout(self, username):
         # Запрашиваем пользователя, что покидает нас
         # получаем запись из таблицы AllUsers
-        user = self.session.query(self.AllUsers).filter_by(name=username).first()
+        user = self.session.query(
+            self.AllUsers).filter_by(name=username).first()
 
         # Удаляем его из таблицы активных пользователей.
         # Удаляем запись из таблицы ActiveUsers
@@ -149,7 +154,7 @@ class ServerStorage:
             self.ActiveUsers.ip_address,
             self.ActiveUsers.port,
             self.ActiveUsers.login_time
-            ).join(self.AllUsers)
+        ).join(self.AllUsers)
         # Возвращаем список кортежей
         return query.all()
 
